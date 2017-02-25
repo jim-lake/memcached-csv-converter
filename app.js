@@ -39,8 +39,7 @@ fs.createReadStream(file_name)
 const REGEX = /(\\x..|.)/g;
 
 function hex_convert(s) {
-  const converted_s = s.replace(REGEX,(a) => {
+  return s.replace(REGEX,(a) => {
     return a.length > 1 ? a.slice(2).toUpperCase() : a.charCodeAt(0).toString(16).toUpperCase();
   });
-  return "0x" + converted_s;
 }
