@@ -18,6 +18,6 @@
   "homepage": "https://github.com/jim-lake/memcached-csv-converter#readme",
   "dependencies": {
     "lodash": "3.x",
-    "csv": "*"
+    "fast-csv": "*"
   }
 }

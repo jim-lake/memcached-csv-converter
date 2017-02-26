@@ -1,8 +1,7 @@
 'use strict';
 
 const fs = require('fs');
-const csv = require('csv');
-
+const csv = require('fast-csv');
 
 if (process.argv.length < 3) {
   console.log("Usage: node memcached-csv-converter.js <input> [output]");
@@ -12,14 +11,6 @@ if (process.argv.length < 3) {
 const file_name = process.argv[2];
 const output_file = process.argv[3] || false;
 
-const parse_opts = {
-  max_limit_on_data_read: 128000000,
-  escape: '',
-  quote: '',
-  auto_parse: false,
-  auto_parse_date: false,
-};
-
 let output;
 if (output_file) {
   output = fs.createWriteStream(output_file);
@@ -27,14 +18,24 @@ if (output_file) {
   output = process.stdout;
 }
 
+const fast_opts = {
+  quote: '',
+  escape: '',
+};
+
+const csv_stream = csv.parse(fast_opts);
+
+csv_stream.on("data",(data) => {
+  data[1] = hex_convert(data[1]);
+  output.write(data.join(",") + "\n");
+});
+
+csv_stream.on("end",() => {
+  console.log("done");
+});
+
 fs.createReadStream(file_name)
-  .pipe(csv.parse(parse_opts))
-  .pipe(csv.transform((record) => {
-    record[1] = hex_convert(record[1]);
-    return record;
-  }))
-  .pipe(csv.stringify())
-  .pipe(output);
+  .pipe(csv_stream);
 
 const REGEX = /(\\x..|.)/g;
 
